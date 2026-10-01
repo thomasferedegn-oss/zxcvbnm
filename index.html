@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>የሒሳብ ምዕራፍ 1 ፈተና - የሙሉ ቁጥሮች ተካፋይነት፣ ብዜቶች እና አካፋዮች</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f3f4f6;
+    }
+    .correct-choice {
+      background-color: #d1fae5 !important;
+      border-color: #10b981 !important;
+      color: #065f46 !important;
+    }
+    .wrong-choice {
+      background-color: #fee2e2 !important;
+      border-color: #ef4444 !important;
+      color: #991b1b !important;
+    }
+  </style>
+</head>
+<body class="py-8 px-4 sm:px-6 lg:px-8">
+
+  <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6 sm:p-8">
+    
+    <!-- Top Bar with Timer -->
+    <div class="flex flex-col sm:flex-row justify-between items-center border-b pb-4 mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-800">ምዕራፍ 1፡ የሙሉ ቁጥሮች ተካፋይነት፣ ብዜቶች እና አካፋዮች</h1>
+        <p class="text-gray-500 text-sm">የ4ኛ/6ኛ ክፍል የሒሳብ ምዘና ፈተና (44 ጥያቄዎች)</p>
+      </div>
+      <div id="timer" style="text-align: right; font-weight: bold; color: #e74c3c; padding: 10px; font-size: 1.25rem;">
+        Time: 60m 00s
+      </div>
+    </div>
+
+    <!-- Student Registration Form -->
+    <div id="student-info-section" class="mb-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
+      <h2 class="text-lg font-semibold text-blue-900 mb-3">የተማሪ መረጃ / Student Identification</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">ሙሉ ስም (Full Name)</label>
+          <input type="text" id="student-name" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="ለምሳሌ፡ አበበ ከበደ">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">መለያ ቁጥር (ID Number)</label>
+          <input type="text" id="student-id" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="ለምሳሌ፡ ST-1001">
+        </div>
+      </div>
+      <button onclick="startExam()" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md transition shadow">
+        ፈተናውን ጀምር (Start Exam)
+      </button>
+    </div>
+
+    <!-- Questions Container -->
+    <div id="quiz-container" class="space-y-6 hidden">
+      <!-- Questions will be dynamically inserted here -->
+    </div>
+
+    <!-- Question Navigation Controls (Back & Next) -->
+    <div id="quiz-nav-section" class="mt-6 hidden flex flex-col sm:flex-row justify-between items-center gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+      <button id="prev-btn" onclick="prevQuestion()" class="w-full sm:w-auto bg-gray-600 hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium py-2.5 px-6 rounded-md transition flex items-center justify-center gap-2 shadow-sm">
+        ← ወደ ኋላ (Back)
+      </button>
+      <span id="question-indicator" class="text-gray-800 font-bold text-base sm:text-lg">
+        ጥያቄ 1 ከ 44
+      </span>
+      <button id="next-btn" onclick="nextQuestion()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium py-2.5 px-6 rounded-md transition flex items-center justify-center gap-2 shadow-sm">
+        ወደ ፊት (Next) →
+      </button>
+    </div>
+
+    <!-- Quick Question Jump Grid -->
+    <div id="question-grid-section" class="mt-6 hidden p-4 bg-gray-50 rounded-lg border border-gray-200">
+      <div class="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">የጥያቄዎች ማውጫ (Question Jump):</div>
+      <div id="question-grid" class="flex flex-wrap gap-1.5 sm:gap-2">
+        <!-- Dynamically filled with question numbers -->
+      </div>
+    </div>
+
+    <!-- Submit Section -->
+    <div id="submit-section" class="mt-8 text-center hidden">
+      <button onclick="submitQuiz()" class="bg-green-600 hover:bg-green-700 text-white text-lg font-bold py-3 px-10 rounded-lg transition shadow-lg">
+        ፈተናውን አስረክብ (Submit Quiz)
+      </button>
+    </div>
+
+    <!-- Score Results Section -->
+    <div id="results-section" class="mt-8 p-6 bg-green-50 rounded-lg border border-green-200 hidden">
+      <h2 class="text-2xl font-bold text-green-900 mb-2">የፈተና ውጤት (Exam Summary)</h2>
+      <p id="student-details-display" class="text-gray-700 font-medium mb-2"></p>
+      <div class="text-3xl font-extrabold text-blue-600 mb-4" id="final-score-text"></div>
+      
+      <div class="flex flex-wrap gap-4 mt-4">
+        <button onclick="sendEmailScore()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md transition flex items-center gap-2">
+          📧 ውጤቱን በኢሜይል ላክ (Send Score via Email)
+        </button>
+      </div>
+    </div>
+
+    <!-- Teacher / Examiner Access Section -->
+    <div class="mt-12 pt-6 border-t border-gray-200">
+      <div id="login-section" class="bg-gray-100 p-4 rounded-lg">
+        <h2 class="text-lg font-bold text-gray-800 mb-3">Examiner Access (የመምህር ገፅ)</h2>
+        <div class="flex flex-wrap gap-3 items-center">
+          <input type="text" id="username" placeholder="Username" class="p-2 border rounded-md">
+          <input type="password" id="password" placeholder="Password" class="p-2 border rounded-md">
+          <button onclick="checkLogin()" class="bg-gray-800 hover:bg-gray-900 text-white py-2 px-4 rounded-md">Login</button>
+        </div>
+      </div>
+
+      <div id="score-report" style="display:none;" class="mt-4 p-4 bg-yellow-50 rounded-lg border border-yellow-300">
+        <h2 class="text-xl font-bold text-gray-800 mb-3">Student Exam Scores (የተማሪዎች ውጤት መዝገብ)</h2>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b bg-yellow-100">
+                <th class="p-2">ቀን</th>
+                <th class="p-2">ስም</th>
+                <th class="p-2">መለያ ቁጥር</th>
+                <th class="p-2">ውጤት</th>
+                <th class="p-2">መቶኛ</th>
+              </tr>
+            </thead>
+            <tbody id="scores-table-body">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const questionsData = [
+      { id: 1, q: "ከሚከተሉት ቁጥሮች ውስጥ ለ2 ተካፋይ የሆነው የቱ ነው?", options: ["121", "793", "168", "111"], answer: 2, exp: "አንድ ቁጥር ለ2 ተካፋይ የሚሆነው የአንድ ቤት ሆሄው ጥንድ (0, 2, 4, 6, 8) ሲሆን ነው። የ 168 የአንድ ቤት ሆሄ 8 በመሆኑ ለ2 ተካፋይ ነው።" },
+      { id: 2, q: "የቁጥር 98,721 የሆሄያት ድምር ስንት ነው?", options: ["18", "27", "17", "26"], answer: 1, exp: "9 + 8 + 7 + 2 + 1 = 27 ይሆናል።" },
+      { id: 3, q: "የቁጥር 52,324 የአስር ቤት ሆሄና የአንድ ቤት ሆሄ የሚመሰርተው ቁጥር በ4 ተካፋይ ነው?", options: ["አዎ", "አይ"], answer: 0, exp: "የአስር እና የአንድ ቤት ሆሄያት የሚመሰርቱት ቁጥር 24 ሲሆን፣ 24 ደግሞ ለ4 ያለ ቀሪ ተካፋይ ስለሆነ ቁጥሩ በ4 ተካፋይ ነው።" },
+      { id: 4, q: "ከሚከተሉት ቁጥሮች ውስጥ ለ5 ተካፋይ ያልሆነው የቱ ነው?", options: ["10,565", "48,950", "714,573", "ሁሉም ለ5 ተካፋይ ናቸው"], answer: 2, exp: "ለ5 ተካፋይ ለመሆን የአንድ ቤት ሆሄው 0 ወይም 5 መሆን አለበት። የ 714,573 የአንድ ቤት ሆሄ 3 ስለሆነ ለ5 አይካፈልም።" },
+      { id: 5, q: "አንድ ሙሉ ቁጥር ለ2 እና ለ3 ተካፋይ ከሆነ ቁጥሩ ለ________ ተካፋይ ነው፡፡", options: ["4", "5", "6", "7"], answer: 2, exp: "አንድ ቁጥር ለ2 እና ለ3 ተካፋይ ከሆነ ለብዜታቸው (2 × 3 = 6) ተካፋይ ይሆናል።" },
+      { id: 6, q: "የ91 የአስር ቤት ሆሄ በሶስት ተባዝቶ ከአንድ ቤት ሆሄው ጋር ሲደመር የሚገኘው ውጤት ስንት ነው?", options: ["27", "28", "91", "1"], answer: 1, exp: "የ91 የአስር ቤት ሆሄ 9 ነው። (9 × 3) + 1 = 27 + 1 = 28 ይሆናል።" },
+      { id: 7, q: "የ2415 ቁጥር ለ7 ተካፋይ መሆኑን ለማረጋገጥ፣ 24 በ2 ተባዝቶ ከ15 ጋር ሲደመር የሚገኘው ውጤት ስንት ነው?", options: ["48", "63", "15", "24"], answer: 1, exp: "(24 × 2) + 15 = 48 + 15 = 63 ይሆናል። 63 ደግሞ ለ7 ተካፋይ ነው።" },
+      { id: 8, q: "የቁጥር 40512 የመቶ ፣ የአስር ቤት ሆሄና የአንድ ቤት ሆሄ የሚመሰርተው ቁጥር ለ8 ተካፋይ ነው?", options: ["አዎ", "አይ"], answer: 0, exp: "የመጨረሻዎቹ ሶስት ሆሄያት (512) ለ8 ያለቀሪ ስለሚካፈሉ (512 ÷ 8 = 64)፣ ቁጥሩ ለ8 ተካፋይ ነው።" },
+      { id: 9, q: "የቁጥር 89,208 የሆሄያት ድምር ስንት ነው?", options: ["18", "27", "20", "89"], answer: 1, exp: "8 + 9 + 2 + 0 + 8 = 27 ይሆናል።" },
+      { id: 10, q: "ከሚከተሉት ቁጥሮች ውስጥ ለ10 ተካፋይ ያልሆነው የቱ ነው?", options: ["105670", "715900", "32760", "23465"], answer: 3, exp: "ለ10 ተካፋይ ለመሆን የአንድ ቤት ሆሄው 0 መሆን አለበት። የ 23465 የአንድ ቤት ሆሄ 5 በመሆኑ ለ10 አይካፈልም።" },
+      { id: 11, q: "“አንድ ሙሉ ቁጥር በ10 ተካፋይ ከሆነ በ5 ተካፋይ ነው፡፡” የሚለው አረፍተ ነገር?", options: ["እውነት", "ሀሰት"], answer: 0, exp: "በ10 ተካፋይ የሆኑ ቁጥሮች የአንድ ቤት ሆሄያቸው 0 ስለሆነ፣ ሁልጊዜ በ5ም ተካፋይ ናቸው።" },
+      { id: 12, q: "የ32 አካፋዮች ከ16 አካፋዮች ጋር ሲነፃፀሩ 32 በ16 ተካፋይ ይሆናል?", options: ["አዎ", "አይ"], answer: 0, exp: "32 ÷ 16 = 2 ያለ ቀሪ ስለሚካፈል 32 በ16 ተካፋይ ነው።" },
+      { id: 13, q: "የ24 አካፋዮች ከሚከተሉት ውስጥ የትኞቹ ናቸው?", options: ["1, 2, 3, 4, 6, 8, 12, 24", "1, 2, 3, 4, 6, 8, 10, 12, 24", "1, 2, 3, 4, 5, 6, 8, 12, 24", "1, 2, 4, 6, 8, 12, 24"], answer: 0, exp: "24 ያለ ቀሪ የሚካፈለው ለ 1, 2, 3, 4, 6, 8, 12, እና 24 ነው።" },
+      { id: 14, q: "“ለ” የ“ሀ” አካፋይ የሚሆነው አንድ ሙሉ ቁጥር “መ” ሲኖር እና 'ሀ = ለ × መ' ሲሟላ ብቻ ነው፡፡” የሚለው ትርጉም?", options: ["እውነት", "ሀሰት"], answer: 0, exp: "ይህ የአካፋይ (Factor) ትክክለኛ የሂሳብ ትርጉም ነው።" },
+      { id: 15, q: "የ128 የመጀመሪያዎቹ አምስት ብዜቶች ከሚከተሉት ውስጥ የትኞቹ ናቸው?", options: ["128, 256, 384, 512, 640", "1, 2, 4, 8, 16", "128, 1, 2, 4, 8", "ሁሉም ስህተት ነው"], answer: 0, exp: "128 በ 1, 2, 3, 4, 5 ሲባዛ የሚገኙት ብዜቶች 128, 256, 384, 512, 640 ናቸው።" },
+      { id: 16, q: "ከሚከተሉት አረፍተ ነገሮች ውስጥ '0 የ85 አካፋይ ነው' የሚለው?", options: ["እውነት", "ሀሰት"], answer: 1, exp: "0 የማንኛውም ቁጥር አካፋይ መሆን አይችልም (በ 0 ማካፈል በሂሳብ አይፈቀድም)።" },
+      { id: 17, q: "አንድ አካፋይ ብቻ ያለው ሙሉ ቁጥር የቱ ነው?", options: ["0", "1", "2", "3"], answer: 1, exp: "ቁጥር 1 አንድ አካፋይ (ራሱን 1) ብቻ አለው።" },
+      { id: 18, q: "ከሁለት በላይ አካፋዮች ያሏቸው ሙሉ ቁጥሮች ምን ይባላሉ?", options: ["ብቸኛ ቁጥሮች", "ተተንታኝ ቁጥሮች", "ተጋማሽ ቁጥሮች", "ኢ-ተጋማሽ ቁጥሮች"], answer: 1, exp: "ከሁለት በላይ አካፋዮች ያሏቸው ሙሉ ቁጥሮች ተተንታኝ ቁጥሮች (Composite Numbers) ይባላሉ።" },
+      { id: 19, q: "የ20 ብቸኛ አብዢዎች የትኞቹ ናቸው?", options: ["1, 2, 4, 5, 10, 20", "2, 5", "1, 2, 5", "4, 5"], answer: 1, exp: "ከ 20 አካፋዮች (1, 2, 4, 5, 10, 20) ውስጥ ብቸኛ (Prime) የሆኑት 2 እና 5 ብቻ ናቸው።" },
+      { id: 20, q: "የ95 ብቸኛ ትንትን የቱ ነው?", options: ["5 x 19", "5 x 5 x 19", "1 x 95", "5 + 19"], answer: 0, exp: "95 = 5 × 19 ሲሆን 5 እና 19 ብቸኛ ቁጥሮች ናቸው።" },
+      { id: 21, q: "የ32 ብቸኛ ትንትን የቱ ነው?", options: ["2 x 16", "2 x 2 x 8", "2^5", "32 x 1"], answer: 2, exp: "32 = 2 × 2 × 2 × 2 × 2 = 2^5 ሲሆን፣ 2 ብቸኛ ቁጥር ነው።" },
+      { id: 22, q: "የ648 ብቸኛ ትንትን የቱ ነው?", options: ["2^3 x 3^4", "2 x 3 x 108", "2 x 3 x 3 x 3 x 3 x 2 x 2", "648"], answer: 0, exp: "648 = 8 × 81 = 2^3 × 3^4 ነው።" },
+      { id: 23, q: "የ120 ብቸኛ ትንትን የቱ ነው?", options: ["2^3 x 3 x 5", "2 x 3 x 5 x 4", "10 x 12", "2 x 60"], answer: 0, exp: "120 = 8 × 3 × 5 = 2^3 × 3 × 5 ነው።" },
+      { id: 24, q: "የ64 እና የ132 ትልቁ የጋራ አካፋይ (ት.ጋ.አ) የቱ ነው?", options: ["1", "2", "4", "8"], answer: 2, exp: "64 = 2^6 እና 132 = 2^2 × 3 × 11 ስለሆኑ ትልቁ የጋራ አካፋያቸው 2^2 = 4 ነው።" },
+      { id: 25, q: "የ12, 18 እና 24 ትልቁ የጋራ አካፋይ (ት.ጋ.አ) የቱ ነው?", options: ["2", "3", "6", "12"], answer: 2, exp: "12, 18 እና 24 የሚካፈሉበት ትልቁ የጋራ ቁጥር 6 ነው።" },
+      { id: 26, q: "“ሀ የለ አካፋይ ከሆነ እና ሀ < ለ ከሆነ ት.ጋ.አ (ሀ, ለ) = ሀ” የሚለው አረፍተ ነገር?", options: ["እውነት", "ሀሰት"], answer: 0, exp: "ሀ የለ አካፋይ ከሆነ ትልቁ የጋራ አካፋያቸው ራሱ ሀ ይሆናል።" },
+      { id: 27, q: "የ25 እና 125 ት.ጋ.አ የቱ ነው?", options: ["1", "5", "25", "125"], answer: 2, exp: "25 የ 125 አካፋይ ስለሆነ ት.ጋ.አ (25, 125) = 25 ይሆናል።" },
+      { id: 28, q: "የ3 እና 100 ት.ጋ.አ የቱ ነው?", options: ["1", "3", "100", "300"], answer: 0, exp: "3 እና 100 የጋራ አካፋያቸው 1 ብቻ ስለሆነ ት.ጋ.አ 1 ነው።" },
+      { id: 29, q: "የ60 እና 48 ት.ጋ.አ የቱ ነው?", options: ["12", "6", "4", "24"], answer: 0, exp: "60 = 12 × 5 እና 48 = 12 × 4 ስለሆኑ ትልቁ የጋራ አካፋያቸው 12 ነው።" },
+      { id: 30, q: "የ122 እና 88 የጋራ አካፋዮች የትኞቹ ናቸው?", options: ["1, 2", "1, 2, 4", "1, 11", "1, 2, 11"], answer: 0, exp: "የ122 አካፋዮች (1, 2, 61, 122) እና የ88 አካፋዮች (1, 2, 4, 8, 11, 22, 44, 88) የጋራ አካፋዮች 1 እና 2 ብቻ ናቸው።" },
+      { id: 31, q: "የ1125, 150 እና 122 ትልቁ የጋራ አካፋይ የቱ ነው?", options: ["1", "2", "3", "5"], answer: 0, exp: "122 ለ 2 እና 61 ብቻ የሚካፈል ሲሆን፣ 1125 በ2 አይካፈልም፣ 150 ለ 61 አይካፈልም። ስለዚህ ት.ጋ.አ 1 ነው።" },
+      { id: 32, q: "ከሚከተሉት ጥንዶች ውስጥ አንጻራዊ ብቸኛ ቁጥሮች የሆኑት የትኞቹ ናቸው?", options: ["113 እና 121", "104 እና 68", "1690 እና 133", "ሁሉም አንጻራዊ ብቸኛ ቁጥሮች ናቸው"], answer: 0, exp: "113 ብቸኛ ቁጥር ሲሆን፣ ት.ጋ.አ (113, 121) = 1 ስለሆነ አንጻራዊ ብቸኛ ቁጥሮች (Relatively Prime) ናቸው።" },
+      { id: 33, q: "የ72 እና 56 ት.ጋ.አ የቱ ነው?", options: ["2", "4", "8", "16"], answer: 2, exp: "72 = 8 × 9 እና 56 = 8 × 7 ስለሆኑ ትልቁ የጋራ አካፋያቸው 8 ነው።" },
+      { id: 34, q: "የ9 ብዜቶች ከሚከተሉት ውስጥ የትኞቹ ናቸው?", options: ["0, 9, 18, 27, 36", "1, 9, 18, 27, 36", "9, 18, 27, 36, 45", "ሀ እና ሐ"], answer: 3, exp: "0 ለማንኛውም ቁጥር ብዜት ስለሆነ 0, 9, 18, 27... እና 9, 18, 27... የ9 ብዜቶች ናቸው።" },
+      { id: 35, q: "የ6 ብዜቶች ከሚከተሉት ውስጥ የትኞቹ ናቸው?", options: ["0, 6, 12, 18, 24", "1, 6, 12, 18, 24", "6, 12, 18, 24, 30", "ሀ እና ሐ"], answer: 3, exp: "0 እና አወንታዊ ቁጥሮች 6, 12, 18, 24... የ6 ብዜቶች ናቸው።" },
+      { id: 36, q: "የ9 እና የ6 ትንሹ የጋራ ብዜት (ት.ጋ.ብ) የቱ ነው?", options: ["0", "9", "18", "36"], answer: 2, exp: "ከዜሮ በላይ ያለው ትንሹ የጋራ ብዜት 18 ነው።" },
+      { id: 37, q: "“ዜሮ ለማንኛውም ሙሉ ቁጥር ብዜት ነው ፡፡ ነገርግን ለቁጥሮች ትንሹ የጋራ ብዜት አይደለም፡፡” የሚለው ማስታወሻ?", options: ["እውነት", "ሀሰት"], answer: 0, exp: "0 የማንኛውም ሙሉ ቁጥር ብዜት ቢሆንም፣ ት.ጋ.ብ ከዜሮ በላይ ከሆኑት መካከል ትንሹ ይወሰዳል።" },
+      { id: 38, q: "የ8 እና 56 ት.ጋ.ብ የቱ ነው?", options: ["8", "56", "1", "448"], answer: 1, exp: "56 በ 8 ተካፋይ ስለሆነ ትንሹ የጋራ ብዜታቸው 56 ነው።" },
+      { id: 39, q: "የ3 እና 7 ት.ጋ.ብ የቱ ነው?", options: ["1", "3", "7", "21"], answer: 3, exp: "3 እና 7 ብቸኛ ቁጥሮች ስለሆኑ ት.ጋ.ብ (3, 7) = 3 × 7 = 21 ይሆናል።" },
+      { id: 40, q: "የ3 እና 5 ት.ጋ.ብ የቱ ነው?", options: ["0", "3", "5", "15"], answer: 3, exp: "3 × 5 = 15 ትንሹ የጋራ ብዜታቸው ነው።" },
+      { id: 41, q: "የ12, 16 እና 20 ት.ጋ.ብ የቱ ነው?", options: ["120", "240", "60", "480"], answer: 1, exp: "12 = 2^2 × 3, 16 = 2^4, 20 = 2^2 × 5 ሲሆን፣ ት.ጋ.ብ = 2^4 × 3 × 5 = 240 ይሆናል።" },
+      { id: 42, q: "የ8 እና 20 ት.ጋ.ብ (40) እና ት.ጋ.አ (4) ሲሆኑ ት.ጋ.ብ x ት.ጋ.አ ስንት ነው?", options: ["80", "160", "120", "20"], answer: 1, exp: "40 × 4 = 160 ይሆናል። (እንዲሁም 8 × 20 = 160)" },
+      { id: 43, q: "ሁለት አዉቶቡሶች በየ16 ደቂቃ እና በየ20 ደቂቃ ከአንድ መናኸሪያ ይነሳሉ፡፡ አብረው ከነሱ በኋላ ለሁለተኛ ጊዜ እኩል የሚነሱት ከስንት ደቂቃ በኋላ ነው?", options: ["20 ደቂቃ", "40 ደቂቃ", "60 ደቂቃ", "80 ደቂቃ"], answer: 3, exp: "የ16 እና 20 ትንሹ የጋራ ብዜት (ት.ጋ.ብ) 80 ስለሆነ፣ ከ 80 ደቂቃ በኋላ እንደገና አብረው ይነሳሉ።" },
+      { id: 44, q: "በአቶ አበበ ክፍል ውስጥ 12 ወንዶች እና 18 ሴቶች አሉ፡፡ እያንዳንዱ ቡድን እኩል ወንዶች እና ሴቶች ሊኖሩት እንዲችል አቶ አበበ ምን ማድረግ አለበት?", options: ["ወንዶች እና ሴቶችን እኩል ባልሆኑ ቡድኖች መከፋፈል", "ትልቁን የጋራ አካፋይ በመጠቀም ትልቁን የቡድን ብዛት መፈለግ", "ትንሹን የጋራ ብዜት በመጠቀም ትንሹን የቡድን ብዛት መፈለግ", "ተጨማሪ ወንዶች ወይም ሴቶች ማምጣት"], answer: 1, exp: "እቃዎችን ወይም ሰዎችን እኩል ለመከፋፈል ትልቁን የጋራ አካፋይ (ት.ጋ.አ) መጠቀም ያስፈልጋል።" }
+    ];
+
+    let userAnswers = {};
+    let timerInterval = null;
+    let totalSeconds = 3600; // 60 minutes
+    let isSubmitted = false;
+    let studentName = "";
+    let studentId = "";
+    let currentQuestionIndex = 0;
+
+    function renderQuestions() {
+      const container = document.getElementById('quiz-container');
+      container.innerHTML = '';
+
+      questionsData.forEach((qItem, index) => {
+        const qCard = document.createElement('div');
+        qCard.className = `p-5 border border-gray-200 rounded-lg bg-gray-50 question-card ${index === 0 ? '' : 'hidden'}`;
+        qCard.id = `q-card-${qItem.id}`;
+
+        let optionsHTML = '';
+        const labels = ['ሀ', 'ለ', 'ሐ', 'መ'];
+
+        qItem.options.forEach((opt, optIdx) => {
+          optionsHTML += `
+            <button 
+              type="button"
+              onclick="selectAnswer(${qItem.id}, ${optIdx})"
+              id="opt-btn-${qItem.id}-${optIdx}"
+              class="w-full text-left p-3 my-1 border rounded-md bg-white hover:bg-blue-50 transition border-gray-300 font-medium">
+              <span class="font-bold mr-2">${labels[optIdx]})</span> ${opt}
+            </button>
+          `;
+        });
+
+        qCard.innerHTML = `
+          <div class="font-semibold text-gray-800 text-lg mb-3">
+            ${index + 1}. ${qItem.q}
+          </div>
+          <div class="space-y-1">
+            ${optionsHTML}
+          </div>
+          <div id="explanation-${qItem.id}" class="mt-3 p-3 text-sm rounded-md hidden"></div>
+        `;
+        container.appendChild(qCard);
+      });
+
+      renderQuestionGrid();
+      updateNavigationControls();
+    }
+
+    function showQuestion(index) {
+      if (index < 0 || index >= questionsData.length) return;
+
+      currentQuestionIndex = index;
+      questionsData.forEach((qItem, i) => {
+        const card = document.getElementById(`q-card-${qItem.id}`);
+        if (card) {
+          if (i === currentQuestionIndex) {
+            card.classList.remove('hidden');
+          } else {
+            card.classList.add('hidden');
+          }
+        }
+      });
+
+      updateNavigationControls();
+      updateGridHighlight();
+    }
+
+    function nextQuestion() {
+      if (currentQuestionIndex < questionsData.length - 1) {
+        showQuestion(currentQuestionIndex + 1);
+      }
+    }
+
+    function prevQuestion() {
+      if (currentQuestionIndex > 0) {
+        showQuestion(currentQuestionIndex - 1);
+      }
+    }
+
+    function updateNavigationControls() {
+      document.getElementById('question-indicator').innerText = `ጥያቄ ${currentQuestionIndex + 1} ከ ${questionsData.length}`;
+      
+      const prevBtn = document.getElementById('prev-btn');
+      const nextBtn = document.getElementById('next-btn');
+
+      prevBtn.disabled = (currentQuestionIndex === 0);
+      nextBtn.disabled = (currentQuestionIndex === questionsData.length - 1);
+    }
+
+    function renderQuestionGrid() {
+      const grid = document.getElementById('question-grid');
+      grid.innerHTML = '';
+
+      questionsData.forEach((qItem, idx) => {
+        const btn = document.createElement('button');
+        btn.id = `grid-num-${idx}`;
+        btn.onclick = () => showQuestion(idx);
+        btn.className = `w-8 h-8 sm:w-9 sm:h-9 text-xs sm:text-sm font-semibold rounded-md border transition flex items-center justify-center ${idx === 0 ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'}`;
+        btn.innerText = idx + 1;
+        grid.appendChild(btn);
+      });
+    }
+
+    function updateGridHighlight() {
+      questionsData.forEach((qItem, idx) => {
+        const btn = document.getElementById(`grid-num-${idx}`);
+        if (!btn) return;
+
+        const isAnswered = userAnswers.hasOwnProperty(qItem.id);
+        const isCurrent = (idx === currentQuestionIndex);
+
+        if (isCurrent) {
+          btn.className = "w-8 h-8 sm:w-9 sm:h-9 text-xs sm:text-sm font-bold rounded-md border-2 border-blue-700 bg-blue-600 text-white shadow";
+        } else if (isAnswered) {
+          const isCorrect = userAnswers[qItem.id] === qItem.answer;
+          if (isCorrect) {
+            btn.className = "w-8 h-8 sm:w-9 sm:h-9 text-xs sm:text-sm font-semibold rounded-md border bg-green-500 text-white border-green-600";
+          } else {
+            btn.className = "w-8 h-8 sm:w-9 sm:h-9 text-xs sm:text-sm font-semibold rounded-md border bg-red-500 text-white border-red-600";
+          }
+        } else {
+          btn.className = "w-8 h-8 sm:w-9 sm:h-9 text-xs sm:text-sm font-semibold rounded-md border bg-white text-gray-700 border-gray-300 hover:bg-gray-100";
+        }
+      });
+    }
+
+    function selectAnswer(qId, optionIdx) {
+      if (isSubmitted || userAnswers.hasOwnProperty(qId)) return;
+
+      userAnswers[qId] = optionIdx;
+      const qItem = questionsData.find(q => q.id === qId);
+      const isCorrect = (optionIdx === qItem.answer);
+
+      // Instantly highlight options & disable further changes on this question
+      qItem.options.forEach((_, idx) => {
+        const btn = document.getElementById(`opt-btn-${qId}-${idx}`);
+        btn.disabled = true;
+
+        if (idx === qItem.answer) {
+          btn.className = "w-full text-left p-3 my-1 border rounded-md font-bold correct-choice";
+        } else if (idx === optionIdx && !isCorrect) {
+          btn.className = "w-full text-left p-3 my-1 border rounded-md font-bold wrong-choice";
+        } else {
+          btn.className = "w-full text-left p-3 my-1 border rounded-md bg-gray-50 border-gray-200 text-gray-400 opacity-60";
+        }
+      });
+
+      // Display instant feedback explanation
+      const expDiv = document.getElementById(`explanation-${qId}`);
+      expDiv.classList.remove('hidden');
+
+      if (isCorrect) {
+        expDiv.className = "mt-3 p-3 text-sm rounded-md bg-green-100 text-green-900 border border-green-300";
+        expDiv.innerHTML = `<strong>ትክክል! ✅</strong> ${qItem.exp}`;
+      } else {
+        expDiv.className = "mt-3 p-3 text-sm rounded-md bg-red-100 text-red-900 border border-red-300";
+        const correctLabel = ['ሀ', 'ለ', 'ሐ', 'መ'][qItem.answer];
+        expDiv.innerHTML = `<strong>ስህተት ❌</strong> (ትክክለኛው መልስ፡ <strong>${correctLabel}</strong>) <br>${qItem.exp}`;
+      }
+
+      updateGridHighlight();
+    }
+
+    function startExam() {
+      studentName = document.getElementById('student-name').value.trim();
+      studentId = document.getElementById('student-id').value.trim();
+
+      if (!studentName || !studentId) {
+        alert("እባክዎን ሙሉ ስምዎን እና መለያ ቁጥርዎን ያስገቡ! (Please enter Full Name and ID)");
+        return;
+      }
+
+      document.getElementById('student-info-section').classList.add('hidden');
+      document.getElementById('quiz-container').classList.remove('hidden');
+      document.getElementById('quiz-nav-section').classList.remove('hidden');
+      document.getElementById('question-grid-section').classList.remove('hidden');
+      document.getElementById('submit-section').classList.remove('hidden');
+      
+      renderQuestions();
+      startTimer();
+    }
+
+    function submitQuiz() {
+      if (isSubmitted) return;
+      isSubmitted = true;
+      clearInterval(timerInterval);
+
+      let score = 0;
+      questionsData.forEach(qItem => {
+        const selected = userAnswers[qItem.id];
+        
+        // Unhide all question cards so student can review all questions after submit
+        const card = document.getElementById(`q-card-${qItem.id}`);
+        if (card) card.classList.remove('hidden');
+
+        // Handle unanswered questions upon final submission
+        if (selected === undefined) {
+          const expDiv = document.getElementById(`explanation-${qItem.id}`);
+          expDiv.classList.remove('hidden');
+          const correctLabel = ['ሀ', 'ለ', 'ሐ', 'መ'][qItem.answer];
+          expDiv.className = "mt-3 p-3 text-sm rounded-md bg-yellow-100 text-yellow-900 border border-yellow-300";
+          expDiv.innerHTML = `<strong>ያልተመለሰ ⚠️</strong> (ትክክለኛው መልስ፡ <strong>${correctLabel}</strong>) <br>${qItem.exp}`;
+
+          qItem.options.forEach((_, idx) => {
+            const btn = document.getElementById(`opt-btn-${qItem.id}-${idx}`);
+            btn.disabled = true;
+            if (idx === qItem.answer) {
+              btn.classList.add('correct-choice');
+            } else {
+              btn.classList.add('opacity-50');
+            }
+          });
+        } else if (selected === qItem.answer) {
+          score++;
+        }
+      });
+
+      // Hide single-question navigation controls on summary page
+      document.getElementById('quiz-nav-section').classList.add('hidden');
+
+      // Display Final Summary
+      const percentage = ((score / questionsData.length) * 100).toFixed(1);
+      document.getElementById('submit-section').classList.add('hidden');
+      document.getElementById('results-section').classList.remove('hidden');
+      
+      document.getElementById('student-details-display').innerText = `ተማሪ፡ ${studentName} | መለያ ቁጥር፡ ${studentId}`;
+      document.getElementById('final-score-text').innerText = `ውጤት፡ ${score} / ${questionsData.length} (${percentage}%)`;
+
+      // Save to localStorage for teacher review
+      saveScoreRecord(studentName, studentId, score, questionsData.length, percentage);
+      window.scrollTo({ top: document.getElementById('results-section').offsetTop, behavior: 'smooth' });
+    }
+
+    function sendEmailScore() {
+      const score = Object.keys(userAnswers).filter(id => userAnswers[id] === questionsData.find(q => q.id == id).answer).length;
+      const percentage = ((score / questionsData.length) * 100).toFixed(1);
+      const subject = encodeURIComponent(`Math Exam Score - ${studentName} (${studentId})`);
+      const body = encodeURIComponent(`የተማሪ ስም: ${studentName}\nመለያ ቁጥር: ${studentId}\nውጤት: ${score}/${questionsData.length} (${percentage}%)\nቀን: ${new Date().toLocaleString()}`);
+      window.location.href = `mailto:mesayferedegn2@gmail.com?subject=${subject}&body=${body}`;
+    }
+
+    function saveScoreRecord(name, id, score, total, percentage) {
+      const records = JSON.parse(localStorage.getItem('math_quiz_scores') || '[]');
+      records.push({
+        date: new Date().toLocaleDateString(),
+        name,
+        id,
+        score: `${score}/${total}`,
+        percentage: `${percentage}%`
+      });
+      localStorage.setItem('math_quiz_scores', JSON.stringify(records));
+    }
+
+    function checkLogin() {
+      const user = document.getElementById('username').value;
+      const pass = document.getElementById('password').value;
+      if (user === "admin" && pass === "ethiopia2026") {
+        document.getElementById('login-section').style.display = 'none';
+        document.getElementById('score-report').style.display = 'block';
+        loadTeacherScores();
+      } else {
+        alert("Incorrect credentials. Please try again.");
+      }
+    }
+
+    function loadTeacherScores() {
+      const records = JSON.parse(localStorage.getItem('math_quiz_scores') || '[]');
+      const tbody = document.getElementById('scores-table-body');
+      tbody.innerHTML = '';
+      if (records.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-gray-500">ምንም የተቀመጠ ውጤት የለም።</td></tr>`;
+        return;
+      }
+      records.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.className = "border-b hover:bg-yellow-100/50";
+        tr.innerHTML = `
+          <td class="p-2">${r.date}</td>
+          <td class="p-2 font-semibold">${r.name}</td>
+          <td class="p-2">${r.id}</td>
+          <td class="p-2 text-blue-700 font-bold">${r.score}</td>
+          <td class="p-2 text-green-700 font-bold">${r.percentage}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+  </script>
+</body>
+</html>
